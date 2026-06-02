@@ -10,6 +10,8 @@ concurrency:
   group: deploy-bugnote-emma
   cancel-in-progress: false
 
+permissions: {}
+
 jobs:
   deploy:
     name: SSH deploy to Emma (bugnote lane)
@@ -29,7 +31,11 @@ jobs:
         run: |
           mkdir -p ~/.ssh && chmod 700 ~/.ssh
           eval "$(ssh-agent -s)"
-          echo "${{ secrets.BUGNOTE_SSH_KEY }}" | ssh-add -
+          _key_file="$(mktemp)"
+          chmod 600 "$_key_file"
+          echo "${{ secrets.BUGNOTE_SSH_KEY }}" > "$_key_file"
+          ssh-add "$_key_file"
+          rm -f "$_key_file"
           echo "SSH_AUTH_SOCK=$SSH_AUTH_SOCK" >> "$GITHUB_ENV"
           echo "SSH_AGENT_PID=$SSH_AGENT_PID" >> "$GITHUB_ENV"
 
