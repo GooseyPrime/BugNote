@@ -1,0 +1,18 @@
+{
+  "name": "@bugnote/github-app",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "scripts": {
+    "build": "tsup src/index.ts --format esm --dts",
+    "typecheck": "tsc --noEmit"
+  },
+  "dependencies": {
+    "@bugnote/shared": "*",
+    "@octokit/app": "^15.1.0",
+    "@octokit/rest": "^21.0.0"
+  },
+  "devDependencies": { "tsup": "^8.0.0", "typescript": "^5.5.0" }
+}
