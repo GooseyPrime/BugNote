@@ -1,0 +1,16 @@
+{
+  "name": "@bugnote/widget",
+  "version": "0.1.0",
+  "type": "module",
+  "main": "./dist/index.js",
+  "module": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "unpkg": "./dist/bugnote.umd.js",
+  "files": ["dist"],
+  "scripts": {
+    "build": "tsup",
+    "typecheck": "tsc --noEmit"
+  },
+  "dependencies": { "html2canvas": "^1.4.1" },
+  "devDependencies": { "tsup": "^8.0.0", "typescript": "^5.5.0" }
+}

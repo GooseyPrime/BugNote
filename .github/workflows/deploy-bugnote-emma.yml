@@ -1,0 +1,75 @@
+name: Deploy BugNote to Emma
+
+on:
+  push:
+    branches: ["main"]
+    paths: ["apps/server/**", "packages/**", "scripts/**", "ecosystem.config.cjs", ".github/workflows/deploy-bugnote-emma.yml"]
+  workflow_dispatch: {}
+
+concurrency:
+  group: deploy-bugnote-emma
+  cancel-in-progress: false
+
+permissions: {}
+
+jobs:
+  deploy:
+    name: SSH deploy to Emma (bugnote lane)
+    runs-on: ubuntu-latest
+    steps:
+      - name: Validate required secrets
+        run: |
+          for s in BUGNOTE_EMMA_HOST BUGNOTE_EMMA_USER BUGNOTE_SSH_KEY; do
+            if [ -z "${!s:-}" ]; then echo "Missing secret: $s"; exit 1; fi
+          done
+        env:
+          BUGNOTE_EMMA_HOST: ${{ secrets.BUGNOTE_EMMA_HOST }}
+          BUGNOTE_EMMA_USER: ${{ secrets.BUGNOTE_EMMA_USER }}
+          BUGNOTE_SSH_KEY: ${{ secrets.BUGNOTE_SSH_KEY }}
+
+      - name: Start SSH agent and load key
+        run: |
+          mkdir -p ~/.ssh && chmod 700 ~/.ssh
+          eval "$(ssh-agent -s)"
+          _key_file="$(mktemp)"
+          chmod 600 "$_key_file"
+          echo "${{ secrets.BUGNOTE_SSH_KEY }}" > "$_key_file"
+          ssh-add "$_key_file"
+          rm -f "$_key_file"
+          echo "SSH_AUTH_SOCK=$SSH_AUTH_SOCK" >> "$GITHUB_ENV"
+          echo "SSH_AGENT_PID=$SSH_AGENT_PID" >> "$GITHUB_ENV"
+
+      - name: Configure known_hosts
+        run: |
+          if [ -n "${{ secrets.BUGNOTE_KNOWN_HOSTS }}" ]; then
+            echo "${{ secrets.BUGNOTE_KNOWN_HOSTS }}" > ~/.ssh/known_hosts
+          else
+            ssh-keyscan -H "${{ secrets.BUGNOTE_EMMA_HOST }}" >> ~/.ssh/known_hosts
+          fi
+          chmod 644 ~/.ssh/known_hosts
+
+      - name: Write backend .env (optional)
+        if: ${{ secrets.BUGNOTE_WRITE_BACKEND_ENV != '' }}
+        run: |
+          ssh "${{ secrets.BUGNOTE_EMMA_USER }}@${{ secrets.BUGNOTE_EMMA_HOST }}" \
+            "cat > /home/bugnote/bugnote/.env" <<'ENVEOF'
+          ${{ secrets.BUGNOTE_WRITE_BACKEND_ENV }}
+          ENVEOF
+          ssh "${{ secrets.BUGNOTE_EMMA_USER }}@${{ secrets.BUGNOTE_EMMA_HOST }}" \
+            "chmod 600 /home/bugnote/bugnote/.env"
+
+      - name: Run deploy script over SSH
+        run: |
+          ssh "${{ secrets.BUGNOTE_EMMA_USER }}@${{ secrets.BUGNOTE_EMMA_HOST }}" \
+            "bash /home/bugnote/bugnote/scripts/deploy-runtime.sh"
+
+      - name: Health check
+        if: ${{ secrets.BUGNOTE_PUBLIC_HEALTH_URL != '' }}
+        run: |
+          for i in $(seq 1 10); do
+            if curl -fsS "${{ secrets.BUGNOTE_PUBLIC_HEALTH_URL }}" >/dev/null; then
+              echo "Healthy"; exit 0
+            fi
+            echo "Waiting for health... ($i)"; sleep 6
+          done
+          echo "Health check failed"; exit 1
