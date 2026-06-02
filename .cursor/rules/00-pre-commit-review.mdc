@@ -1,0 +1,158 @@
+---
+description: Master pre-commit checklist for every change in this repository. Always read before staging.
+alwaysApply: true
+---
+
+# Pre-commit review checklist
+
+This checklist captures recurring failure classes seen in agent-generated code:
+partial edits, caller drift, weak tests, schema skew, error-path regressions,
+misleading docs, and branch discipline failures.
+
+## A. Before staging
+
+0. **PR branch first.** Unless the user authorized direct default-branch work in
+   this same request, run `bash scripts/git/assert-not-on-default-branch.sh`
+   before `git add` or `git commit`. For a new scoped task, first run
+   `bash scripts/git/prepare-work-branch.sh <topic-slug>`.
+1. **Read the full local context.** For every edit, read the surrounding file,
+   the caller, and the callee. Do not patch only the visible diff.
+2. **Grep every caller.** If you renamed, retyped, restricted, loosened, moved,
+   or repurposed a function, constant, type, route, component, env var, table,
+   column, event, or permission, search the repo and verify every caller.
+3. **Grep every writer.** If you change a field or state transition, find every
+   other writer of the same fact and confirm there is one clear owner.
+4. **Check repo profile.** If the repository is new to you, read or create
+   `docs/agent/REPO_PROFILE.md` from the template before editing.
+
+## B. Tests
+
+5. **Tests must fail without the fix.** Mentally revert the fix. If the new test
+   still passes, strengthen it.
+6. **Order-sensitive behavior must assert order.** Do not rely on call counts
+   when sequence, newest/oldest order, retry order, or event order matters.
+7. **Run focused checks after meaningful edits.** Use the repo's real commands:
+   lint, typecheck, unit tests, migration checks, build, or targeted tests. If
+   commands are unknown, inspect `package.json`, `pyproject.toml`, `Makefile`,
+   `Cargo.toml`, `go.mod`, CI workflows, and README files.
+8. **Restore mutated globals.** Tests that patch globals, timers, DOM APIs,
+   environment variables, module state, or process state must restore them in
+   teardown.
+
+## C. Async and state correctness
+
+9. **One fact, one writer.** If two async paths update the same user-visible or
+   persisted fact, define the winner and remove or gate the competing write.
+10. **Side effect before promise row.** If a database row or status promises that
+    a job, email, upload, webhook, notification, or external call exists, perform
+    or enqueue the side effect before writing the row that claims it happened.
+11. **Hydration cannot overwrite newer local intent.** URL params, sockets,
+    polling, optimistic state, and callbacks must not reattach or overwrite after
+    an intentional detach/cancel/reset.
+
+## D. Error paths and logs
+
+12. **Do not lose diagnostics.** If you narrow an error path or throw earlier,
+    preserve the logging, metrics, trace IDs, and user-safe error surfaces relied
+    on by operators.
+13. **Do not reuse callbacks across severity.** Success/info/error/warning
+    callbacks must remain semantically distinct.
+14. **User-visible errors use shared extraction helpers.** If the repo has an API
+    error unwrap helper, use it instead of generic `error.message` fallbacks.
+
+## E. Schema, deploy skew, and migrations
+
+15. **Code must tolerate not-yet-applied schema.** When code depends on a recent
+    migration, handle missing columns, missing enum values, missing indexes,
+    missing views, and old row shapes safely.
+16. **Fallback writes mirror primary writes.** Degraded or compatibility paths
+    must not silently skip fields written by the main path.
+17. **Migration semantics matter.** Check transaction requirements, lock impact,
+    reversibility, default values, backfills, view replacement rules, RLS policy
+    order, and tenant ownership before shipping migrations.
+18. **Health readiness reflects safety.** If the app can serve traffic without a
+    required isolation, auth, migration, or data-integrity prerequisite, readiness
+    must fail rather than report merely degraded.
+
+## F. Event windows and capped collections
+
+19. **Spread direction must match slice direction.** Newest-at-bottom uses
+    `[...prev, item].slice(-N)`. Newest-at-top uses `[item, ...prev].slice(0, N)`.
+20. **Boundary test at N+1.** Any capped buffer needs a test that inserts one
+    more item than the cap and verifies exactly which item drops.
+
+## G. Third-party APIs
+
+21. **Verify contracts before calling.** Check official docs or installed types
+    for argument order, lock behavior, retry semantics, IDs, pagination,
+    idempotency, rate limits, date formats, webhooks, and error codes.
+22. **Normalize input once.** External IDs, slugs, currency units, timestamps,
+    files, and provider-specific variants should be normalized at the boundary.
+
+## H. Docs and PR parity
+
+23. **PR text must match the final patch.** Re-read the PR body and changed docs
+    against the final diff before pushing.
+24. **Screenshots and copy must reflect shipped behavior.** Do not claim an
+    interaction, integration, performance, accessibility property, or external
+    availability that was not implemented and verified.
+25. **External claims require live verification when possible.** If the PR says a
+    provider, model, package, API, price, domain, endpoint, or standard behaves a
+    certain way, verify it against a current primary source.
+
+## I. Domain policy and high-risk defaults
+
+26. **Read binding domain policy before changing high-impact behavior.** This
+    includes auth, billing, tenant isolation, model selection, safety filters,
+    compliance, healthcare/legal/financial decisions, data retention, privacy,
+    and irreversible actions.
+27. **Do not mutate protected prompts, policies, prices, trust rules, or default
+    providers casually.** Treat them as public contracts unless the task clearly
+    authorizes the change.
+
+## J. Resource cleanup and path hygiene
+
+28. **Early returns clean up.** If normal flow deletes staged files, releases
+    locks, rolls back jobs, closes handles, removes temp dirs, or updates status,
+    every early return before that point must do the same.
+29. **After file mutation, update every reference.** Variables, DB rows, logs,
+    download links, backup jobs, upload calls, manifests, and return values must
+    point to the new canonical path.
+30. **Guard symmetry in sweeps.** If one sibling sweep path gets a new exemption,
+    dry-run guard, retention check, or ownership condition, apply it to all
+    siblings unless a doc explains the exception.
+
+## K. UI tiering, permissions, and query safety
+
+31. **Do not show restricted defaults while access is loading.** Use a loading
+    state or permissive-until-known state; never flash a lower tier because the
+    query has not resolved.
+32. **Admin/owner overrides must be symmetric.** If one UI gate includes an admin
+    bypass, matching backend routes and sibling UI gates must include equivalent
+    logic.
+33. **Set query `enabled` when UI is gated.** Do not fetch data for users who can
+    never see the result.
+34. **Reuse shared query keys intentionally.** Duplicate observers with different
+    options can create racey cache behavior.
+
+## L. Data ownership and isolation
+
+35. **RLS and policy filters execute before route-level SQL.** Route predicates
+    cannot recover rows hidden by database-level policy. Use migrations,
+    backfills, or policy updates deliberately.
+36. **Ownership can flow through multiple paths.** Enumerate all legitimate owner
+    paths before adding a permission restriction.
+
+## M. Runtime and environment parity
+
+37. **Documented env vars must be honored by runtime clients.** If docs mention
+    both `SERVICE_URL` and host/port pieces, validation and connection code must
+    accept and use the same forms.
+38. **Bootstrap-only secrets must not leak into app processes.** Admin URLs,
+    superuser tokens, migration keys, and break-glass credentials must be scoped
+    to the bootstrap subprocess and unset before runtime start/reload.
+
+---
+
+If a review finding surprises you and represents a repeatable class, extend the
+closest rule. The rule layer is first-class project memory.

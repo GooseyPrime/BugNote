@@ -1,0 +1,5 @@
+# Optional: one grep -E pattern per line for public-copy language you want to ban.
+# Blank lines and comments are ignored. Keep this project-specific.
+# Example:
+# adversarial synthesis
+# epistemic certainty

@@ -1,0 +1,48 @@
+---
+description: Portable protocol for agents to adapt this operating regimen to any new or existing repository.
+alwaysApply: true
+---
+
+# Repository self-assimilation
+
+## Rule
+
+Before implementation in an unfamiliar repository, build a local mental map from
+repository evidence, not assumptions.
+
+## Assimilation sequence
+
+1. List top-level files and directories.
+2. Read root README, AGENTS, Cursor rules, contribution docs, architecture docs,
+   and package/workspace configs.
+3. Identify languages, package managers, build systems, and workspace boundaries.
+4. Identify app entry points, API routes, jobs/workers, database migrations,
+   schemas, tests, deployment files, and environment examples.
+5. Identify generated code and directories that should not be hand-edited.
+6. Identify secrets, external services, local service dependencies, and ports.
+7. Identify invariants: auth, billing, ownership, policy, retention, data safety,
+   public copy, and deployment branch behavior.
+8. Identify check commands and the cheapest focused checks for the task.
+9. Summarize touched subsystems and likely ripple paths before editing.
+
+## Repo profile
+
+Use `docs/agent/REPO_PROFILE.template.md` to create `docs/agent/REPO_PROFILE.md`
+when the repo lacks an equivalent file. Keep it factual and update it when the
+repo changes.
+
+## Don't do this
+
+- Do not assume a single app root in a monorepo.
+- Do not assume npm, Python, Docker, or a specific host without evidence.
+- Do not edit generated files unless the generation process is unavailable and
+  the user accepts that tradeoff.
+- Do not rename public contracts while improving copy.
+- Do not skip grep because a symbol appears local.
+
+## Pre-commit check
+
+- [ ] Local repo profile or equivalent docs were read.
+- [ ] Touched workspace/package was identified.
+- [ ] Correct commands were chosen for the touched area.
+- [ ] Generated and vendor files were avoided.

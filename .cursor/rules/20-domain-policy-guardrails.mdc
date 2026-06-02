@@ -1,0 +1,44 @@
+---
+description: Keeps project-specific policy, compliance, safety, trust, and high-stakes defaults from drifting accidentally.
+alwaysApply: true
+---
+
+# Domain policy guardrails
+
+## Rule
+
+Every repository has domain-specific invariants. Agents must discover and respect
+them before changing high-impact behavior.
+
+## Find the binding policy layer
+
+Look for:
+
+- `AGENTS.md`, `.cursor/rules/`, README files, architecture docs, runbooks.
+- Compliance, safety, privacy, retention, trust, moderation, or security docs.
+- Model/provider selection docs.
+- Pricing, billing, subscription, entitlement, or usage policies.
+- Tenant isolation, permission, RLS, or ownership docs.
+- Product scope docs and deferred-feature lists.
+
+If no policy layer exists, use `docs/agent/REPO_PROFILE.template.md` to create a
+project profile before modifying high-impact areas.
+
+## High-impact areas
+
+Do not casually change:
+
+1. Authentication, authorization, admin bypasses, tenant isolation, or privacy.
+2. Billing, metering, entitlements, limits, refunds, or trial behavior.
+3. Data retention, deletion, consent, export, or audit behavior.
+4. Model/provider defaults, system prompts, safety filters, trust scoring, or
+   ranking logic.
+5. Medical, legal, financial, safety, research-integrity, or compliance outputs.
+6. Public claims, pricing, security statements, and policy pages.
+
+## Pre-commit check
+
+- [ ] Binding policy docs were identified and read.
+- [ ] The change does not contradict them.
+- [ ] High-impact defaults are unchanged unless requested.
+- [ ] Any external/policy claim is verified and cited in docs or PR text.

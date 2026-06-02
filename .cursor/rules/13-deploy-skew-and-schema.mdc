@@ -1,0 +1,54 @@
+---
+description: Prevents deploy-skew, fallback drift, unsafe migrations, and write-order failures around schema and side effects.
+alwaysApply: true
+---
+
+# Deploy skew and schema hygiene
+
+## Rule A — tolerate schema skew
+
+When code depends on a migration introduced recently or in the same change set,
+assume code and schema may be temporarily out of sync during deploy.
+
+Handle safely:
+
+- Missing columns, tables, views, enum values, indexes, triggers, functions, or
+  policies.
+- Old row shapes returned by test mocks or deployed services.
+- New code writing to an older database.
+- Old code reading rows written by newer code.
+
+Prefer capability checks, guarded SELECTs, `try/catch` around known database error
+codes, default values, and additive migrations.
+
+## Rule B — fallback writes mirror primary writes
+
+Fallback, compatibility, degraded, and retry paths must write the same logical
+fields as the primary path unless a documented reason says otherwise.
+
+## Rule C — side effect before promised state
+
+If a persisted row says a downstream side effect exists, create/enqueue the side
+effect first, then write the row. Examples: jobs, emails, uploads, invoices,
+notifications, webhooks, exports, and external IDs.
+
+## Rule D — migration review
+
+Before merging migrations, check:
+
+1. Transaction compatibility.
+2. Lock duration and table size.
+3. Backfill plan and default values.
+4. Rollback or forward-fix plan.
+5. RLS/policy interaction.
+6. View replacement restrictions.
+7. Existing test mocks that assume old row shapes.
+8. Health/readiness behavior if the migration is missing.
+
+## Pre-commit check
+
+- [ ] New schema references tolerate old schema.
+- [ ] Fallback writes mirror primary writes.
+- [ ] Side effects are created before rows claim they exist.
+- [ ] Migration transaction and lock behavior are understood.
+- [ ] Test mocks updated for new row shape.

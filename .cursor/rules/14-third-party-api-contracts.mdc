@@ -1,0 +1,41 @@
+---
+description: Prevents external API/library contract mistakes, ID-format drift, unsafe retries, and input-normalization bugs.
+alwaysApply: true
+---
+
+# Third-party API and library contracts
+
+## Rule
+
+Before using or changing a third-party API, library, SDK, CLI, provider, payment
+system, auth system, queue, database feature, file format, or protocol, verify its
+actual contract from primary docs, installed types, or local source.
+
+## Check these contracts
+
+1. Required and optional fields.
+2. Argument order and units.
+3. ID formats and slug syntax.
+4. Pagination shape.
+5. Locking and transaction behavior.
+6. Retry and idempotency requirements.
+7. Rate limits and backoff.
+8. Signature verification and timestamp tolerance.
+9. Time zone and date precision.
+10. Error codes and recoverability.
+11. Security boundaries and data retention.
+12. Version-specific behavior.
+
+## Normalize at boundaries
+
+Provider-specific values should be normalized at the boundary once, not scattered
+through business logic. Examples: cents vs dollars, seconds vs milliseconds,
+UTC timestamps, path separators, MIME types, enum aliases, webhook event names,
+and external account IDs.
+
+## Pre-commit check
+
+- [ ] Contract verified from primary source or installed types.
+- [ ] Provider values normalized at boundary.
+- [ ] Retry/idempotency behavior is safe.
+- [ ] Tests include invalid, missing, and provider-specific inputs.

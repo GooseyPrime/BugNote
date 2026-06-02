@@ -1,0 +1,45 @@
+---
+description: Keeps cost, usage, metering, quota, and unit-economics telemetry scoped, idempotent, and auditable.
+alwaysApply: true
+---
+
+# Cost, usage, and unit-economics telemetry
+
+## Rule
+
+Any feature that consumes paid APIs, compute, storage, bandwidth, background jobs,
+or user quota must emit usage in one canonical, auditable path.
+
+## Telemetry contract
+
+1. Emit from one authoritative site per billable action.
+2. Use a run/job/request/user/org scope ID that survives retries.
+3. Make emission idempotent with a stable key.
+4. Record provider, model/service, unit type, quantity, price basis, currency,
+   timestamp, and source subsystem when known.
+5. Never trust client-reported cost or quota consumption without server-side
+   verification.
+6. Degrade safely when telemetry tables/columns are missing during deploy skew.
+7. Make retries distinguish original attempt, retry attempt, and final charged
+   usage.
+8. Keep audit records separate from display summaries.
+
+## Unit economics
+
+If public pricing, plan limits, credits, free quotas, or margins are changed,
+update:
+
+- Billing config.
+- Entitlement gates.
+- Metering logic.
+- Public copy.
+- Tests.
+- Seed/bootstrap scripts.
+- Any reconciliation job.
+
+## Pre-commit check
+
+- [ ] One authoritative emit site.
+- [ ] Stable idempotency key.
+- [ ] Server-side quantity/cost basis.
+- [ ] Plan limits and public copy match runtime behavior.

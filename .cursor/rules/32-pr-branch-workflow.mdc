@@ -1,0 +1,53 @@
+---
+description: Unless the user directs otherwise in the same request, all work happens on a PR branch, not the default branch.
+alwaysApply: true
+---
+
+# PR branch workflow
+
+## Binding rule
+
+Agents must not commit implementation work directly on the default branch unless
+the user explicitly authorizes that in the same request.
+
+## Start of work
+
+```bash
+git fetch origin
+bash scripts/git/prepare-work-branch.sh <topic-slug>
+```
+
+Use a short, descriptive topic slug. The script creates or resets
+`cursor/<topic-slug>` from the remote default branch.
+
+## Finish of work
+
+1. Run the relevant checks.
+2. Commit on the PR branch.
+3. Push the branch.
+4. Open or update a PR into the default branch.
+5. Tell the user: `PR: <link>. Merge PR #N to ship.`
+
+## Break-glass direct default branch
+
+Allowed only when the user explicitly says so in the same request. Requirements:
+
+- Include `[direct-main]` in the commit message.
+- Prefer the smallest safe change.
+- Explain why PR flow was bypassed.
+
+## Escalation block
+
+```text
+Blocked: I cannot safely complete this through the normal PR branch workflow.
+Safe options:
+A) Merge/open the PR branch.
+B) Reply with explicit direct default-branch authorization and I will use [direct-main].
+Needed from you: <specific action>.
+```
+
+## Pre-commit check
+
+- [ ] Not on default branch.
+- [ ] Branch is based on fresh origin default branch.
+- [ ] PR exists or final response includes exact merge/open instruction.

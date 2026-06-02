@@ -1,0 +1,27 @@
+---
+description: Keeps list/detail/read APIs on canonical read models instead of duplicated SQL or divergent shapes.
+alwaysApply: false
+---
+
+# Canonical read models
+
+## Rule
+
+When a repository has canonical read services, SQL views, selectors, serializers,
+DTO builders, or API response mappers, all list/detail/timeline/export reads for
+that resource must use the canonical path.
+
+## Checklist
+
+1. Identify the canonical read service or view before adding a new read path.
+2. Do not duplicate complex joins or response-shape logic in routes/components.
+3. New columns must be added to the canonical path first, then consumers.
+4. Tests and mocks must reflect the canonical row/DTO shape.
+5. Deploy-skew must be handled for recently added read fields.
+6. Sort order and pagination must be consistent across list/detail/export.
+
+## Pre-commit check
+
+- [ ] No duplicate read-shape logic was introduced.
+- [ ] Canonical read model was updated first.
+- [ ] Consumers and tests use the same shape.

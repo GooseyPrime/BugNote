@@ -1,0 +1,28 @@
+---
+description: Requires agents to handle nearby discoveries responsibly without silently expanding scope or burying risk.
+alwaysApply: true
+---
+
+# Out-of-scope discoveries
+
+## Rule
+
+When you discover a real bug, security issue, data-integrity risk, broken test,
+misleading doc, or deployment hazard outside the current task, do not silently
+ignore it and do not secretly expand scope.
+
+## Allowed handling
+
+1. Fix it immediately if it is small, directly adjacent, and low risk.
+2. Add a clear TODO, issue, or retrospective note if the repo has a tracking
+   pattern and the risk is non-urgent.
+3. Escalate to the user if it blocks safe completion, affects security/data loss,
+   or conflicts with the requested scope.
+4. Mention it in the PR body under `Out-of-scope finding` with status:
+   `fixed`, `tracked`, or `needs decision`.
+
+## Pre-commit check
+
+- [ ] Nearby findings are not hidden.
+- [ ] Scope was not expanded without a reason.
+- [ ] Blocking risk was escalated.

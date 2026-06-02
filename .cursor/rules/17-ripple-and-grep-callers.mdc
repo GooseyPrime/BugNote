@@ -1,0 +1,40 @@
+---
+description: Prevents ripple bugs from changing primitives without updating every caller, writer, reader, and test mock.
+alwaysApply: true
+---
+
+# Ripple and grep callers
+
+## Rule
+
+Changing a primitive requires a repository-wide ripple check.
+
+Primitives include functions, hooks, components, routes, env vars, constants,
+types, schemas, enum values, SQL views, tables, columns, query keys, event names,
+feature flags, permissions, analytics events, file paths, and command names.
+
+## Required search pattern
+
+1. Search exact symbol name.
+2. Search aliases and string literals.
+3. Search generated/client schema references.
+4. Search tests and mocks.
+5. Search docs and examples.
+6. Search env examples and deployment configs.
+7. Search scripts, workflows, Dockerfiles, and seed/migration files.
+
+## Decision for every hit
+
+Each hit must be one of:
+
+- Updated.
+- Still correct.
+- Dead and removed.
+- Deferred with a tracked note and safe runtime behavior.
+
+## Pre-commit check
+
+- [ ] All callers/readers/writers were grepped.
+- [ ] Tests and mocks were grepped.
+- [ ] Docs/config/scripts were grepped.
+- [ ] No stale dead-wired path remains.

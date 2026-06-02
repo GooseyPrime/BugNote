@@ -1,0 +1,5 @@
+# Optional: list public-facing files to scan for banned jargon.
+# One path per line. Blank lines and comments are ignored.
+# Example:
+# frontend/src/pages/LandingPage.tsx
+# app/pricing/page.tsx

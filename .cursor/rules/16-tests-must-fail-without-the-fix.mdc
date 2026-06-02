@@ -1,0 +1,31 @@
+---
+description: Prevents weak tests that pass even when the regression remains.
+alwaysApply: true
+---
+
+# Tests must fail without the fix
+
+## Rule
+
+A regression test is only useful if it fails on the broken implementation and
+passes on the fixed implementation.
+
+## Checklist
+
+1. Name the exact regression the test protects.
+2. Identify the assertion that would fail if the fix were reverted.
+3. Include the boundary condition, not only the happy path.
+4. For async behavior, assert final state after all relevant promises, timers,
+   queues, events, or subscriptions settle.
+5. For order-sensitive behavior, assert order explicitly.
+6. For permissions, test allowed and denied paths.
+7. For migrations or schema changes, test old/new compatibility when practical.
+8. Avoid test-only implementation changes that make production code pass by
+   accident.
+
+## Pre-commit check
+
+- [ ] Mentally reverting the fix makes the test fail.
+- [ ] Test asserts the user-visible or persisted outcome.
+- [ ] Test does not merely assert that a mock was called.
+- [ ] Test cleanup restores globals, env vars, timers, and module state.

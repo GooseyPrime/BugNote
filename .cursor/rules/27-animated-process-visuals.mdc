@@ -1,0 +1,30 @@
+---
+description: Keeps animated process visuals truthful, state-driven, accessible, and performance-safe.
+alwaysApply: false
+---
+
+# Animated process visuals
+
+## Rule
+
+Animated diagrams, pipelines, progress UIs, and status visuals must reflect real
+states or be clearly decorative.
+
+## Requirements
+
+1. If animation represents process progress, drive it from real state when
+   available.
+2. If animation is decorative, label it as decorative in code and do not bind
+   product claims to it.
+3. Respect `prefers-reduced-motion`.
+4. Avoid infinite expensive animations on low-power devices.
+5. Do not create duplicate timers, intervals, subscriptions, or query observers.
+6. Keep visual states aligned with backend status enums and copy.
+7. Test the terminal states: success, failure, cancel, timeout, and retry.
+
+## Pre-commit check
+
+- [ ] Animated state names match real state names or are decorative.
+- [ ] Reduced-motion path exists.
+- [ ] No duplicate polling/timers/subscriptions.
+- [ ] Copy does not promise unimplemented process visibility.

@@ -1,0 +1,33 @@
+---
+description: Prevents doc drift, PR body drift, unverified claims, broken anchors, and screenshot/behavior mismatch.
+alwaysApply: true
+---
+
+# Documentation, PR body, and code parity
+
+## Rule
+
+Docs, PR descriptions, comments, examples, screenshots, changelogs, and public
+copy must match the final code that ships.
+
+## Checklist
+
+1. Re-read the PR body against the final diff before pushing.
+2. Every function, file, route, component, config key, env var, command, table,
+   feature flag, and anchor mentioned in docs must exist.
+3. Every described interaction must be implemented.
+4. Every screenshot must match the current UI state, route, and permissions.
+5. External claims must be verified against current primary sources when possible.
+6. Broken links, fragment IDs, route slugs, and docs cross-references must be
+   grepped before shipping.
+7. Deferred features must be labeled as deferred or coming soon; never present
+   them as live.
+8. If docs and code disagree, fix the code or fix the docs in the same change.
+
+## Pre-commit check
+
+- [ ] PR body matches final patch.
+- [ ] Mentioned symbols exist.
+- [ ] Links and anchors resolve.
+- [ ] External claims were verified or clearly marked unverified.
+- [ ] Deferred features are not sold as live features.

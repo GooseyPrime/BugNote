@@ -1,0 +1,39 @@
+---
+description: Contract-style implementation scopes, accessibility gates, and visual QA must stay in sync with code.
+alwaysApply: false
+---
+
+# Scope docs and accessibility contracts
+
+## Rule
+
+Scope docs are contracts. If implementation changes the contract, update the doc;
+if the doc says a gate is required, run or explain that gate.
+
+## Scope doc shape
+
+Use clear sections:
+
+- Objective.
+- In scope.
+- Out of scope.
+- Non-negotiable invariants.
+- Files likely touched.
+- Acceptance criteria.
+- Tests/checks required.
+- Accessibility requirements.
+- Rollback plan.
+
+## Accessibility scan discipline
+
+1. Scan after conditional UI states are reachable, not only after initial load.
+2. Check keyboard navigation, focus order, labels, headings, contrast, and reduced
+   motion.
+3. If a route is auth-gated, document how it was tested.
+4. Keep automated results and manual notes together.
+
+## Pre-commit check
+
+- [ ] Scope doc and implementation agree.
+- [ ] Required gates ran or are explicitly blocked.
+- [ ] Accessibility-sensitive UI was tested in its real state.

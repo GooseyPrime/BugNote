@@ -1,0 +1,65 @@
+name: CI - agent repository guards
+
+on:
+  push:
+    branches: ['**']
+    paths:
+      - 'src/**'
+      - 'app/**'
+      - 'backend/src/**'
+      - 'frontend/src/**'
+      - 'packages/**'
+      - 'scripts/ci/**'
+      - 'scripts/git/**'
+      - '.github/workflows/ci-agent-guards.yml'
+      - '.cursor/rules/**'
+      - 'docs/public-copy/**'
+      - 'AGENTS.md'
+  pull_request:
+    paths:
+      - 'src/**'
+      - 'app/**'
+      - 'backend/src/**'
+      - 'frontend/src/**'
+      - 'packages/**'
+      - 'scripts/ci/**'
+      - 'scripts/git/**'
+      - '.github/workflows/ci-agent-guards.yml'
+      - '.cursor/rules/**'
+      - 'docs/public-copy/**'
+      - 'AGENTS.md'
+
+jobs:
+  no-mocks-in-app-src:
+    name: No test mocks in application source
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Assert no test mock APIs in app source
+        run: bash "${{ github.workspace }}/scripts/ci/assert-no-test-mocks-in-app-src.sh"
+
+  public-copy-no-banned-jargon:
+    name: Public copy banned-pattern guard if configured
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Assert public copy passes banned-pattern guard
+        run: bash "${{ github.workspace }}/scripts/ci/assert-public-copy-no-banned-jargon.sh"
+
+  pr-branch-not-default:
+    name: PR head branch is not default branch
+    if: github.event_name == 'pull_request'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Refuse PRs whose head branch is main/master
+        run: |
+          head="${{ github.head_ref }}"
+          if [[ -z "$head" || "$head" == "main" || "$head" == "master" ]]; then
+            echo "::error::PR head branch must not be main or master (got: ${head:-<empty>})"
+            exit 1
+          fi
+          echo "PR head branch ok: $head"

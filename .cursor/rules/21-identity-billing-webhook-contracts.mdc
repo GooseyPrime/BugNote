@@ -1,0 +1,49 @@
+---
+description: Preserves auth, billing, subscription, webhook, metadata, entitlement, and idempotency contracts.
+alwaysApply: true
+---
+
+# Identity, billing, and webhook contracts
+
+## Rule
+
+Auth, billing, subscriptions, entitlements, and webhooks are contract-heavy. A
+small metadata mismatch can create lost access, double billing, unpaid access,
+or unrecoverable reconciliation gaps.
+
+## Metadata and identity parity
+
+1. The key written at checkout or external-resource creation must match the key
+   read by webhooks and reconciliation jobs.
+2. User ID, org/team ID, email, customer ID, subscription ID, price ID, product ID,
+   and internal plan IDs must have one canonical mapping layer.
+3. Admin/owner/support overrides must be symmetric across UI, API, jobs, and
+   scripts.
+4. Existing external resources must be updated when mutable fields drift; do not
+   only set fields on create.
+
+## Webhook discipline
+
+1. Verify signatures before parsing trusted fields.
+2. Use idempotency keys or processed-event records.
+3. Handle duplicate, delayed, missing, out-of-order, and retry events.
+4. Store enough raw event metadata for audit and replay, without secrets.
+5. Treat clocks and timestamps carefully; validate units and time zones.
+6. Keep webhook handlers deploy-skew tolerant when schemas or event names change.
+
+## Entitlement discipline
+
+1. UI gates and backend gates must match.
+2. Loading states must not flash restricted/free state for paid users.
+3. Denied API responses should explain the missing entitlement without leaking
+   private billing details.
+4. Scheduled jobs and background workers must enforce the same entitlement rules
+   as interactive routes.
+
+## Pre-commit check
+
+- [ ] Metadata key written equals metadata key read.
+- [ ] Webhook is signature-verified and idempotent.
+- [ ] UI/API/job entitlement gates match.
+- [ ] Existing external resources update mutable drift.
+- [ ] Tests cover duplicate and out-of-order events.

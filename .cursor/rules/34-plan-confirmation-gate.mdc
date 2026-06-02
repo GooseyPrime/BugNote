@@ -1,0 +1,30 @@
+---
+description: Prevents irreversible side effects before explicit confirmation in plan/review/approval flows.
+alwaysApply: false
+---
+
+# Plan confirmation gate
+
+## Rule
+
+When a workflow asks the user to confirm a plan, quote, destructive operation,
+charge, send, deploy, publish, or external action, no irreversible side effect may
+occur before confirmation.
+
+## Requirements
+
+1. Persist a pending state that cannot be confused with active/running/sent.
+2. Store enough plan details to resume safely after refresh.
+3. Confirmation must validate the pending item still belongs to the user and is
+   still confirmable.
+4. Cancellation must clean up holds, temp files, locks, and optimistic state.
+5. Duplicate confirmations must be idempotent.
+6. Workers and socket listeners must treat pending as parked, not in flight.
+7. UI should make clear what will happen on confirm.
+
+## Pre-commit check
+
+- [ ] No external action before confirm.
+- [ ] Pending state survives refresh.
+- [ ] Confirm/cancel are idempotent.
+- [ ] Workers do not process parked plans.

@@ -1,0 +1,21 @@
+name: CI - default branch push gate
+
+on:
+  push:
+    branches: [main, master]
+
+jobs:
+  default-branch-push-gate:
+    name: Block unauthorized direct pushes to default branch
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 2
+
+      - name: Assert tip is merged PR or explicitly authorized
+        env:
+          GH_TOKEN: ${{ github.token }}
+          GITHUB_REPOSITORY: ${{ github.repository }}
+        run: bash "${{ github.workspace }}/scripts/ci/assert-default-branch-push-authorized.sh"

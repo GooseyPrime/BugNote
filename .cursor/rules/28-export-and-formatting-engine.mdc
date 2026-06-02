@@ -1,0 +1,34 @@
+---
+description: Preserves export, formatting, document generation, citation, filename, and artifact-delivery contracts.
+alwaysApply: false
+---
+
+# Export and formatting engine
+
+## Rule
+
+Generated artifacts are user-facing deliverables. Export code must preserve
+formatting, citations, file naming, storage, permissions, and download behavior.
+
+## Checklist
+
+1. Define the canonical source content for export; do not export stale UI state.
+2. Use one shared formatting pipeline per format when practical.
+3. Preserve headings, tables, lists, code blocks, links, images, footnotes,
+   citations, and metadata where supported.
+4. Do not invent citations or source labels. If source provenance is unavailable,
+   say so.
+5. Sanitize filenames and paths.
+6. Store artifacts under a canonical path and update DB/job/API references.
+7. Long-running exports should be jobs with status, retry, cancellation, and
+   cleanup behavior.
+8. Test at least one realistic document, not only a tiny fixture.
+9. Deployment environments must include required binaries/fonts/libraries or
+   degrade with a clear error.
+
+## Pre-commit check
+
+- [ ] Export uses canonical content.
+- [ ] Artifact path is canonical after generation.
+- [ ] Missing export dependencies fail clearly.
+- [ ] Sources/citations are not fabricated.

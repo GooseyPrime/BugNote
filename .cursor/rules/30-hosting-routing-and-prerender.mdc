@@ -1,0 +1,31 @@
+---
+description: Prevents SPA rewrite, prerender, API routing, sitemap, redirect, and CSP regressions across hosts.
+alwaysApply: false
+---
+
+# Hosting, routing, and prerender hygiene
+
+## Rule
+
+Hosting rewrites must not accidentally shadow API routes, static assets,
+prerendered pages, proxy routes, or sitemap entries.
+
+## Checklist
+
+1. Specific rewrites/proxies come before SPA catch-all routes.
+2. API routes are not captured by frontend fallback.
+3. Prerendered/static routes are excluded from SPA fallback when required.
+4. Sitemap, robots, canonical URLs, and public route lists match shipped routes.
+5. Redirects preserve query params when those params carry state.
+6. Security headers and CSP changes are minimal and documented.
+7. Inline-script allowances do not accidentally allow inline event-handler
+   attributes unless intentionally accepted.
+8. Third-party script/font/image/connect domains are scoped to actual usage.
+9. Local dev, preview, and production hosts are checked when routing differs.
+
+## Pre-commit check
+
+- [ ] Catch-all route is last.
+- [ ] API/static/prerender routes still work.
+- [ ] Sitemap/robots/canonical entries match.
+- [ ] CSP is no wider than necessary.

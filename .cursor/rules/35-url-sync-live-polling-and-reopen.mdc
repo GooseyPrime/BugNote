@@ -1,0 +1,33 @@
+---
+description: Keeps URL state, hydration, sockets, polling, detach/reopen flows, and active item banners race-safe.
+alwaysApply: false
+---
+
+# URL sync, live polling, and reopen flows
+
+## Rule
+
+URL query state, live events, polling, and reopen/hydration flows must not fight
+each other.
+
+## Requirements
+
+1. Intentional detach/reset must clear the URL state and suppress automatic
+   reattach in the same flow.
+2. Optimistic placeholders must be written before attach/hydration, not after.
+3. Socket subscriptions must have stable dependencies; use refs for changing data
+   read by handlers.
+4. Polling must back off when there is no in-flight work.
+5. Shared lists should use a shared query key and pass data into children instead
+   of spawning duplicate queries.
+6. Reopen/hydrate must reset fields to defaults before applying saved values.
+7. If saved data lacks overrides, clear prior overrides instead of leaking state
+   from a previous item.
+8. Toasts, banners, and status copy need one writer per message.
+
+## Pre-commit check
+
+- [ ] Detach clears URL and suppresses reattach.
+- [ ] Socket handlers are stable.
+- [ ] Polling backs off when idle.
+- [ ] Reopen resets stale fields before applying saved data.

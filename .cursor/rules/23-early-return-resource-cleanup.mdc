@@ -1,0 +1,27 @@
+---
+description: Ensures early returns, continues, throws, and dedupe exits clean up resources that normal flow cleans up.
+alwaysApply: true
+---
+
+# Early-return resource cleanup
+
+## Rule
+
+Any early exit before normal cleanup must perform equivalent cleanup or move
+cleanup into a `finally`/shared helper.
+
+## Resources to check
+
+- Temp files and directories.
+- Staged uploads/downloads/exports.
+- Locks, leases, transactions, savepoints, advisory locks.
+- Queued jobs and reservation rows.
+- Streams, file handles, sockets, browser contexts, workers.
+- DB status rows and audit records.
+- UI loading, optimistic, and pending states.
+
+## Pre-commit check
+
+- [ ] Every new `return`, `continue`, `break`, or `throw` before cleanup was reviewed.
+- [ ] Cleanup is centralized or duplicated intentionally.
+- [ ] Tests cover the early-exit path.

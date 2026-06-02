@@ -1,0 +1,32 @@
+---
+description: Keeps public pages, persona routing, analytics beacons, and visual systems aligned with real behavior and privacy boundaries.
+alwaysApply: false
+---
+
+# Public page persona and visual contracts
+
+## Rule
+
+Public-facing pages are product contracts. Copy, visuals, analytics, routing, and
+CTA behavior must describe and trigger real functionality.
+
+## Checklist
+
+1. Public analytics must not require authenticated clients unless the page itself
+   requires auth.
+2. Persona or segment detection must have explicit defaults and privacy-safe data
+   collection.
+3. CTAs must route to existing pages and preserve expected query params.
+4. Sample/demo links must load real samples or clearly labeled placeholders.
+5. Visual claims must match product capability; do not imply unsupported features.
+6. Design tokens should be centralized; avoid one-off colors, spacing, and fonts
+   scattered across components.
+7. Accessibility basics apply: semantic headings, keyboard flow, focus states,
+   reduced motion, alt text, contrast, and responsive layouts.
+
+## Pre-commit check
+
+- [ ] Public CTAs resolve.
+- [ ] Authenticated and anonymous paths are both safe.
+- [ ] Copy-code parity was checked.
+- [ ] Visual changes use shared tokens where the repo has them.

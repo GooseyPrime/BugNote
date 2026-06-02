@@ -1,0 +1,21 @@
+Portable Cursor Agent Kit
+
+What was generalized:
+- Agent entrypoint and operating regimen from AGENTS.md.
+- Cursor project rule set from .cursor/rules/*.mdc.
+- PR-branch-first workflow and default-branch push guard scripts.
+- CI guard scripts for direct pushes, mock leakage, and optional public-copy terminology checks.
+- GitHub Actions guard workflows.
+- Repo self-assimilation templates and checklists.
+
+What was intentionally removed or generalized:
+- Product/application names.
+- Hosting/vendor names tied to the source repository.
+- Project-specific work orders, PR numbers, incident history, route names, migration numbers, and feature names.
+- Specific auth, billing, research, record-management, export, and deployment implementation details.
+- Concrete secrets, env values, domains, ports, and infrastructure identifiers.
+
+Intended use:
+Copy this kit into a new or existing repository, fill docs/agent/REPO_PROFILE.md,
+and let Cursor agents use AGENTS.md plus .cursor/rules/ as the portable operating
+memory for safe implementation work.

@@ -1,0 +1,29 @@
+---
+description: Keeps user-facing vocabulary precise, non-misleading, and aligned with actual product contracts.
+alwaysApply: false
+---
+
+# Public copy vocabulary
+
+## Rule
+
+User-facing copy must use terms that match what the product actually stores,
+retrieves, verifies, charges for, or guarantees.
+
+## Vocabulary discipline
+
+1. Do not use stronger words than the system can justify. Examples: `proven`,
+   `guaranteed`, `certified`, `secure`, `private`, `real-time`, `free`, or
+   `unlimited` require exact support.
+2. Distinguish source material, evidence, citations, references, files, messages,
+   and generated analysis if the product treats them differently.
+3. Distinguish live features from coming-soon features.
+4. Avoid internal enum names on plain-language surfaces.
+5. Keep legal, pricing, privacy, and security copy especially literal.
+
+## Pre-commit check
+
+- [ ] Strong claims are supported by code and policy.
+- [ ] Internal terminology is hidden or explained.
+- [ ] Deferred features are labeled.
+- [ ] Copy matches permissions, pricing, and runtime behavior.

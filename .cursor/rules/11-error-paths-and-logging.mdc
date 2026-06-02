@@ -1,0 +1,30 @@
+---
+description: Prevents error-path regressions, missing logs, callback severity drift, and swallowed failures.
+alwaysApply: true
+---
+
+# Error paths and logging
+
+## Rule
+
+Changing an error path must preserve operator diagnostics, user-safe messaging,
+metrics, and cleanup behavior.
+
+## Checklist
+
+1. Before narrowing a catch block or adding an early throw, read the existing
+   error path end-to-end.
+2. Preserve logs, trace IDs, metadata, metrics, and structured error fields.
+3. Use shared API-error extraction helpers for user-visible messages.
+4. Do not leak secrets, tokens, connection strings, or private payloads in logs.
+5. Keep callback semantics distinct: `onSuccess`, `onInfo`, `onWarning`, and
+   `onError` should not be reused for a different severity.
+6. If an error path changes retry behavior, verify idempotency and backoff.
+7. If a fallback is removed, document why it is no longer needed and update tests.
+
+## Pre-commit check
+
+- [ ] Existing logs/metrics are preserved or intentionally replaced.
+- [ ] Cleanup still runs on every failure path.
+- [ ] User-facing messages are safe and helpful.
+- [ ] Tests cover the new failure branch.

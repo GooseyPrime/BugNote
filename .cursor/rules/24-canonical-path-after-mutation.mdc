@@ -1,0 +1,30 @@
+---
+description: Prevents stale references after file delete, move, rename, compression, upload, or export mutation.
+alwaysApply: true
+---
+
+# Canonical path after mutation
+
+## Rule
+
+After mutating a file path or artifact location, update every reference to the
+old path before returning or persisting success.
+
+## Check references
+
+1. Local variables.
+2. Database columns.
+3. Job payloads.
+4. Return values and API responses.
+5. Download links and manifests.
+6. Upload/backup calls.
+7. Logs and audit records.
+8. Cleanup routines.
+9. Tests and fixtures.
+10. Docs and runbooks.
+
+## Pre-commit check
+
+- [ ] Old path no longer appears in active code paths.
+- [ ] DB/job/API references point to the canonical path.
+- [ ] Cleanup does not delete the new artifact accidentally.

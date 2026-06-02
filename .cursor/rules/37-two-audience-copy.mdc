@@ -1,0 +1,47 @@
+---
+description: Separates plain-language public copy from technical-depth copy without renaming contracts.
+alwaysApply: false
+---
+
+# Two-audience copy
+
+## Rule
+
+Plain-language surfaces and technical-depth surfaces can describe the same system
+differently, but code contracts must not be renamed casually.
+
+## Audience tiers
+
+1. **Plain surfaces:** landing pages, pricing, onboarding, mode toggles, feature
+   cards, banners, FAQs, and first-run flows. Use everyday language.
+2. **Technical surfaces:** methodology, docs, admin/operator guides, API docs,
+   architecture docs, and advanced settings. Define technical terms on first use.
+
+## Contract safety
+
+Display-copy edits must not rename:
+
+- Enum values.
+- API field names.
+- Database values.
+- Billing price/product IDs.
+- Feature flag keys.
+- Permission keys.
+- Analytics event names.
+- Route slugs.
+
+## Optional CI guard
+
+Use `docs/public-copy/banned-public-jargon.txt` and
+`docs/public-copy/public-copy-manifest.txt` with:
+
+```bash
+bash scripts/ci/assert-public-copy-no-banned-jargon.sh
+```
+
+## Pre-commit check
+
+- [ ] Plain surface uses clear language.
+- [ ] Technical surface defines jargon.
+- [ ] Contract keys are unchanged.
+- [ ] Tests for changed copy were updated without dropping behavior tests.

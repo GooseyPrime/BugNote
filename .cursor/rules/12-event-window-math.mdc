@@ -1,0 +1,43 @@
+---
+description: Prevents off-by-one errors in capped collections, traces, logs, event buffers, and recent-item windows.
+alwaysApply: true
+---
+
+# Event window math
+
+## Rule
+
+For a capped collection of newest `N` items, spread direction must match slice
+direction.
+
+## Canonical patterns
+
+Newest at bottom; drop oldest:
+
+```ts
+[...prev, newItem].slice(-N)
+```
+
+Newest at top; drop oldest:
+
+```ts
+[newItem, ...prev].slice(0, N)
+```
+
+Do not mix `[newItem, ...prev]` with `slice(-N)`: when already at capacity, it can
+drop the newly inserted item.
+
+## Required boundary test
+
+Any capped buffer or event window must include a test that inserts `N + 1` items
+and asserts:
+
+1. Length is exactly `N`.
+2. The correct item was dropped.
+3. The displayed order is correct.
+
+## Pre-commit check
+
+- [ ] Capped collection has an `N + 1` test.
+- [ ] Newest-at-top vs newest-at-bottom is explicit.
+- [ ] Copy-pasted window logic was independently verified.

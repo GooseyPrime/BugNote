@@ -1,0 +1,37 @@
+---
+description: Preserves lineage and parity when revising, forking, cloning, re-running, or deriving new work from old work.
+alwaysApply: false
+---
+
+# Revision, fork, lineage, and timeline
+
+## Rule
+
+When a workflow revises an existing artifact or forks it into new work, preserve
+lineage explicitly and route each path through the correct engine.
+
+## Two common paths
+
+1. **In-place revision:** same parent artifact; focused change; should not run a
+   full creation pipeline unless explicitly designed to.
+2. **Fork/spinoff/clone:** new artifact or run; full setup and permission checks;
+   stores parent IDs and lineage metadata.
+
+## Requirements
+
+1. Revision inputs must be actually ingested or fetched, not represented only as
+   placeholder text.
+2. Fork routes must enforce the same tier, quota, permission, billing, and plan
+   rules as the primary create route.
+3. Lineage columns/fields must be insert-only where appropriate.
+4. List/detail/timeline views must include revisions and forks consistently.
+5. Reopen behavior should choose lineage-preserving fork when a completed parent
+   exists, and simple reopen only for failed/incomplete/no-artifact items.
+6. Deploy-skew must tolerate missing new lineage fields.
+
+## Pre-commit check
+
+- [ ] Revision path does not accidentally run full create pipeline.
+- [ ] Fork path has primary-create parity.
+- [ ] Parent IDs and timeline events are written.
+- [ ] Reads use canonical lineage-aware services.
