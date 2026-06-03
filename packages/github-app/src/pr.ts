@@ -26,7 +26,7 @@ export async function openDraftPr(
   });
 
   const tree = await Promise.all(
-    fix.files.map(async (f) => {
+    fix.files.map(async (f: { path: string; newContent: string }) => {
       const { data: blob } = await octokit.rest.git.createBlob({
         owner,
         repo: name,

@@ -8,6 +8,7 @@ export async function installationOctokit(repo: string) {
     privateKey: env.GITHUB_APP_PRIVATE_KEY,
   });
   const [owner, name] = repo.split("/");
+  if (!owner || !name) throw new Error(`invalid repo: ${repo}`);
   const { data: inst } = await app.octokit.request(
     "GET /repos/{owner}/{repo}/installation",
     { owner, repo: name },

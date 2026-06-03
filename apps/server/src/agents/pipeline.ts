@@ -20,7 +20,9 @@ export async function runStage(
   reportId: string,
 ): Promise<void> {
   try {
-    await STAGES[stage](reportId);
+    const run = STAGES[stage];
+    if (!run) throw new Error(`unknown stage: ${stage}`);
+    await run(reportId);
   } catch (e) {
     if (e instanceof BudgetExceeded) {
       const { dossier } = await loadDossier(reportId);
