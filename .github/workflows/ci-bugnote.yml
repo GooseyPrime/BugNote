@@ -28,6 +28,8 @@ jobs:
           --health-retries 5
     env:
       DATABASE_URL: postgresql://bugnote_app:test@localhost:5432/bugnote
+      INGEST_ALLOWED_ORIGINS: https://test.example
+      ADMIN_ALLOWED_ORIGINS: http://localhost:5173
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
