@@ -74,9 +74,15 @@ CI runs `db:migrate` before `npm test`. Integration tests must not pass with a m
 2. Dashboard inbox shows report progressing.
 3. Optional draft PR on mapped repo.
 
+## Host app integration
+
+Rollout checklist for ResearchOne, thenewontology, and other products: [`HOST_APP_INTEGRATION_PLAN.md`](HOST_APP_INTEGRATION_PLAN.md).
+
 ## Pre-PR review guards
 
-See `.cursor/rules/40-pr-review-recurring-guards.mdc` and `docs/retrospectives/2026-06-03-pr3-codex-copilot-review.md` (themes from Codex/Copilot on PR #3).
+See `.cursor/rules/40-pr-review-recurring-guards.mdc` and retrospectives:
+- `docs/retrospectives/2026-06-03-pr3-codex-copilot-review.md` (PR #3)
+- `docs/retrospectives/2026-06-03-pr5-codex-copilot-review.md` (PR #5 — OAuth allowlist, env naming)
 
 ## Admin auth audit (Clerk → Google)
 

@@ -26,8 +26,14 @@ Captured from PR #3 automated review. Run this mental checklist **before** openi
 - [ ] **Dashboard actions:** Button labels must match the `ReportStatus` value written (no `resolved` unless added to schema).
 - [ ] **Workspaces:** Do not duplicate the same package in `dependencies` and `devDependencies`.
 
+## Admin auth (Google OAuth)
+
+- [ ] **Email allowlist parsing:** `ADMIN_ALLOWED_EMAILS` split must use `.map(trim).filter(Boolean)`; reject tokens with missing/empty `email` before `ALLOWED.includes`.
+- [ ] **Auth tests:** Cover every guard branch — no header, verify failure, `email_verified: false`, missing email, non-allowlisted email, success.
+- [ ] **Dashboard API env:** Code and docs use `VITE_API_BASE_URL` only (run `bash scripts/ci/assert-vite-api-base-url.sh`).
+
 ## After external review
 
 Log new recurring classes in `docs/retrospectives/` and extend this rule or `docs/agent/RETROSPECTIVE_LOG.md`.
 
-See: `docs/retrospectives/2026-06-03-pr3-codex-copilot-review.md`.
+See: `docs/retrospectives/2026-06-03-pr3-codex-copilot-review.md`, `docs/retrospectives/2026-06-03-pr5-codex-copilot-review.md`.

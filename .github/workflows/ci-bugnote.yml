@@ -50,3 +50,5 @@ jobs:
         run: npm test
       - name: Assert no test mocks in app src
         run: bash scripts/ci/assert-no-test-mocks-in-app-src.sh
+      - name: Assert dashboard uses VITE_API_BASE_URL
+        run: bash scripts/ci/assert-vite-api-base-url.sh

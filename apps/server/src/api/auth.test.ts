@@ -48,6 +48,20 @@ describe("requireAuth", () => {
     expect(reply.send).toHaveBeenCalledWith({ error: "unauthorized" });
   });
 
+  it("returns 403 when email_verified is false for allowlisted email", async () => {
+    verifyIdToken.mockResolvedValue({
+      getPayload: () => ({
+        email: "admin@example.com",
+        email_verified: false,
+      }),
+    });
+    const { requireAuth } = await import("./auth.js");
+    const reply = mockReply();
+    await requireAuth(mockReq("Bearer fake-token"), reply);
+    expect(reply.code).toHaveBeenCalledWith(403);
+    expect(reply.send).toHaveBeenCalledWith({ error: "forbidden" });
+  });
+
   it("returns 403 for verified email not on allowlist", async () => {
     verifyIdToken.mockResolvedValue({
       getPayload: () => ({
@@ -77,6 +91,18 @@ describe("requireAuth", () => {
     expect((req as FastifyRequest & { userEmail?: string }).userEmail).toBe(
       "admin@example.com",
     );
+  });
+
+  it("returns 403 when email is missing from token payload", async () => {
+    verifyIdToken.mockResolvedValue({
+      getPayload: () => ({
+        email_verified: true,
+      }),
+    });
+    const { requireAuth } = await import("./auth.js");
+    const reply = mockReply();
+    await requireAuth(mockReq("Bearer fake-token"), reply);
+    expect(reply.code).toHaveBeenCalledWith(403);
   });
 
   it("returns 401 when verifyIdToken throws", async () => {
