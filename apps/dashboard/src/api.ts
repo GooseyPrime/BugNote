@@ -1,6 +1,6 @@
 import { useAuthCredential } from "./auth-context";
 
-const BASE = import.meta.env.VITE_API_BASE as string;
+const BASE = import.meta.env.VITE_API_BASE_URL as string;
 
 export function useApi() {
   const { credential, clearCredential } = useAuthCredential();

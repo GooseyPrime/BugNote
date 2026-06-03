@@ -121,7 +121,7 @@ Register it in `apps/server/src/index.ts` after the ingest routes, and widen COR
 
 ### Part B — Dashboard frontend (`apps/dashboard`)
 
-Vite + React + Tailwind + `@react-oauth/google`. Deploys to Vercel. Env (Vercel project settings): `VITE_GOOGLE_OAUTH_CLIENT_ID`, `VITE_API_BASE` (the Emma ingest server's public URL).
+Vite + React + Tailwind + `@react-oauth/google`. Deploys to Vercel. Env (Vercel project settings): `VITE_GOOGLE_OAUTH_CLIENT_ID`, `VITE_API_BASE_URL` (the Emma ingest server's public URL).
 
 #### `apps/dashboard/src/main.tsx`
 Wrap the app in `GoogleOAuthProvider` (`clientId={import.meta.env.VITE_GOOGLE_OAUTH_CLIENT_ID}`). Use a small React context to store the Google `credential` (ID token). When no credential is stored, render `<GoogleLogin>`; when signed in, render `BrowserRouter` + `App`.
@@ -130,7 +130,7 @@ Wrap the app in `GoogleOAuthProvider` (`clientId={import.meta.env.VITE_GOOGLE_OA
 Read the stored Google credential from context and send `Authorization: Bearer <credential>`. On `401` or `403`, clear the credential so the sign-in gate re-renders (handles ~1-hour ID token expiry).
 
 ```ts
-const BASE = import.meta.env.VITE_API_BASE as string;
+const BASE = import.meta.env.VITE_API_BASE_URL as string;
 
 export function useApi() {
   // credential from auth context

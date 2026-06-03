@@ -116,12 +116,12 @@ Create a bucket `bugnote-screenshots` (private). Generate a Spaces access key/se
 Admin auth is Google OAuth ID-token verification against an email allowlist (single-admin). The server verifies the Google ID token with `google-auth-library` and checks `ADMIN_ALLOWED_EMAILS`; the dashboard uses `@react-oauth/google`, sends the ID token as the Bearer, and re-prompts on 401/403.
 
 1. In [Google Cloud Console](https://console.cloud.google.com/) → APIs & Services → Credentials, create (or reuse) an OAuth 2.0 **Web application** client.
-2. Under **Authorized JavaScript origins**, add your Vercel dashboard URL (e.g. `https://bugnote-dashboard.vercel.app`) and `http://localhost:5173` for local dev.
+2. Under **Authorized JavaScript origins**, add your Vercel dashboard URL (production: `https://bugnote-intellme.vercel.app`) and `http://localhost:5173` for local dev.
 3. Copy the **Client ID** → `GOOGLE_OAUTH_CLIENT_ID` (server `.env` on Emma) and `VITE_GOOGLE_OAUTH_CLIENT_ID` (Vercel project env). No client secret is required for the browser ID-token flow.
 4. Set `ADMIN_ALLOWED_EMAILS` on the server to your Google account email (comma-separated if you ever add more operators).
 
 ### 3.3 Vercel (dashboard)
-Import `GooseyPrime/bugnote`, set **Root Directory = `apps/dashboard`**, framework preset **Vite**. Env vars: `VITE_GOOGLE_OAUTH_CLIENT_ID`, `VITE_API_BASE=https://api.bugnote.intellme.com`. Deploy. Then add the resulting Vercel URL to the server's admin CORS allowlist (`ADMIN_ALLOWED_ORIGINS`) and redeploy the server.
+Import `GooseyPrime/bugnote`, set **Root Directory = `apps/dashboard`**, framework preset **Vite**. Env vars: `VITE_GOOGLE_OAUTH_CLIENT_ID`, `VITE_API_BASE_URL=https://api.bugnote.intellme.com`. Deploy. Then add the dashboard origin to the server's admin CORS allowlist (`ADMIN_ALLOWED_ORIGINS`, e.g. `https://bugnote-intellme.vercel.app`) and redeploy the server.
 
 ---
 
@@ -143,7 +143,7 @@ PORT=8090
 DATABASE_URL=postgresql://bugnote_app:<pw>@127.0.0.1:5432/bugnote
 INGEST_ALLOWED_ORIGINS=https://researchone.io,https://thenewontology.life
 INGEST_RATE_LIMIT_PER_MIN=30
-ADMIN_ALLOWED_ORIGINS=https://<your-vercel-dashboard-url>
+ADMIN_ALLOWED_ORIGINS=https://bugnote-intellme.vercel.app
 OPENROUTER_API_KEY=<reuse your existing key or a scoped one>
 OPENROUTER_MODEL_TRIAGE=<cheap/fast model id>
 OPENROUTER_MODEL_ANALYSIS=<vision-capable model id>
