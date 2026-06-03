@@ -1,0 +1,33 @@
+---
+description: Guards for recurring Codex/Copilot PR findings on BugNote (boundaries, state machine, admin validation, cost, copy).
+globs:
+  - apps/server/**
+  - apps/dashboard/**
+  - packages/**
+---
+
+# PR review recurring guards (BugNote)
+
+Captured from PR #3 automated review. Run this mental checklist **before** opening or updating a PR.
+
+## External I/O boundaries
+
+- [ ] **Screenshot storage:** `reports.screenshot_url` stores a **private object key**, not a fetchable URL. Any OpenRouter vision block or browser-facing URL must use `signedScreenshotUrl()` (or skip image with a dossier note).
+- [ ] **OpenRouter cost:** Prefer `x-openrouter-cost` or `usage.total_cost` when present; per-model fallback rates must not under-estimate analysis/fix models vs triage.
+
+## State machine and queue
+
+- [ ] **Side effect before promised state:** Do not set `status = 'queued'` (or similar) until a `jobs` row exists — call `enqueue` first or use a transaction.
+- [ ] **Admin mutations:** Validate with `ReportStatus.safeParse` / `PipelineStage.safeParse` from `@bugnote/shared` (value imports, not `import type`).
+- [ ] **List endpoints:** Cap numeric query params (`limit` ≤ 200, sane default); reject `NaN`.
+
+## UI and packages
+
+- [ ] **Dashboard actions:** Button labels must match the `ReportStatus` value written (no `resolved` unless added to schema).
+- [ ] **Workspaces:** Do not duplicate the same package in `dependencies` and `devDependencies`.
+
+## After external review
+
+Log new recurring classes in `docs/retrospectives/` and extend this rule or `docs/agent/RETROSPECTIVE_LOG.md`.
+
+See: `docs/retrospectives/2026-06-03-pr3-codex-copilot-review.md`.

@@ -4,6 +4,7 @@ import { chat, parseJson } from "../openrouter.js";
 import { chargeAndCheck, passesGate } from "../guards.js";
 import { loadDossier, saveDossier } from "../dossier.js";
 import { enqueue } from "../../queue/index.js";
+import { signedScreenshotUrl } from "../../storage.js";
 
 export async function analysis(reportId: string) {
   const { report, dossier } = await loadDossier(reportId);
@@ -28,10 +29,15 @@ export async function analysis(reportId: string) {
     { type: "text", text: userText },
   ];
   if (report.screenshot_url) {
-    content.push({
-      type: "image_url",
-      image_url: { url: report.screenshot_url },
-    });
+    try {
+      const url = await signedScreenshotUrl(String(report.screenshot_url));
+      content.push({
+        type: "image_url",
+        image_url: { url },
+      });
+    } catch {
+      dossier.notes.push("analysis: screenshot unavailable (Spaces not configured)");
+    }
   }
 
   const r = await chat(

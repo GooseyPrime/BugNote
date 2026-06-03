@@ -1,11 +1,20 @@
-import type { FastifyInstance } from "fastify";
+import type { FastifyInstance, FastifyReply } from "fastify";
 import { sql } from "drizzle-orm";
-import type { PipelineStage } from "@bugnote/shared";
+import { ReportStatus, PipelineStage } from "@bugnote/shared";
 import { db } from "../db/client.js";
 import { requireAuth } from "./auth.js";
 import { signedScreenshotUrl } from "../storage.js";
 import { enqueue } from "../queue/index.js";
 import { getRows, getFirstRow } from "../db/rows.js";
+
+const MAX_REPORT_LIMIT = 200;
+const DEFAULT_REPORT_LIMIT = 50;
+
+function parseReportLimit(raw: string | undefined): number {
+  const n = Number(raw ?? DEFAULT_REPORT_LIMIT);
+  if (!Number.isFinite(n) || n < 1) return DEFAULT_REPORT_LIMIT;
+  return Math.min(Math.floor(n), MAX_REPORT_LIMIT);
+}
 
 export function registerAdmin(app: FastifyInstance) {
   app.get("/v1/admin/apps", { preHandler: requireAuth }, async () => {
@@ -16,7 +25,8 @@ export function registerAdmin(app: FastifyInstance) {
   });
 
   app.get("/v1/admin/reports", { preHandler: requireAuth }, async (req) => {
-    const { appId, status, limit = "50" } = req.query as Record<string, string>;
+    const { appId, status, limit } = req.query as Record<string, string>;
+    const safeLimit = parseReportLimit(limit);
     const r = await db.execute(sql`
       SELECT id, app_id, status, severity, dup_count, pr_url, created_at, updated_at,
              left(coalesce(note,''), 140) AS note_preview
@@ -24,7 +34,7 @@ export function registerAdmin(app: FastifyInstance) {
       WHERE (${appId ?? null}::text IS NULL OR app_id = ${appId ?? null})
         AND (${status ?? null}::text IS NULL OR status = ${status ?? null})
       ORDER BY updated_at DESC
-      LIMIT ${Number(limit)}`);
+      LIMIT ${safeLimit}`);
     return getRows(r);
   });
 
@@ -47,11 +57,16 @@ export function registerAdmin(app: FastifyInstance) {
   app.post(
     "/v1/admin/reports/:id/status",
     { preHandler: requireAuth },
-    async (req) => {
+    async (req, reply) => {
       const { id } = req.params as { id: string };
-      const { status } = req.body as { status: string };
+      const parsed = ReportStatus.safeParse(
+        (req.body as { status?: string }).status,
+      );
+      if (!parsed.success) {
+        return reply.code(400).send({ error: "invalid status" });
+      }
       await db.execute(
-        sql`UPDATE reports SET status=${status}, updated_at=now() WHERE id=${id}`,
+        sql`UPDATE reports SET status=${parsed.data}, updated_at=now() WHERE id=${id}`,
       );
       return { ok: true };
     },
@@ -60,10 +75,15 @@ export function registerAdmin(app: FastifyInstance) {
   app.post(
     "/v1/admin/reports/:id/retry",
     { preHandler: requireAuth },
-    async (req) => {
+    async (req, reply) => {
       const { id } = req.params as { id: string };
-      const { stage = "triage" } = req.body as { stage?: string };
-      await enqueue(id, stage as PipelineStage);
+      const parsed = PipelineStage.safeParse(
+        (req.body as { stage?: string }).stage ?? "triage",
+      );
+      if (!parsed.success) {
+        return reply.code(400).send({ error: "invalid stage" });
+      }
+      await enqueue(id, parsed.data);
       return { ok: true };
     },
   );

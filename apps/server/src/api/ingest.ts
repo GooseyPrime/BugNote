@@ -71,6 +71,8 @@ export function registerIngest(app: FastifyInstance) {
       );
     }
 
+    // Job row before status promises a queued pipeline (repo rule: side effect before promised state).
+    await enqueue(reportId, "triage");
     await db.execute(sql`
       UPDATE reports
       SET status = 'queued',
@@ -78,8 +80,6 @@ export function registerIngest(app: FastifyInstance) {
           updated_at = now()
       WHERE id = ${reportId}
     `);
-
-    await enqueue(reportId, "triage");
     return { id: reportId, deduped: false };
   });
 }

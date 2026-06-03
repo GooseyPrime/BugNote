@@ -12,9 +12,39 @@ export interface LlmResult {
   costUsd: number;
 }
 
+/** USD per 1M tokens — fallback when OpenRouter does not return usage cost. */
 const PRICE: Record<string, { in: number; out: number }> = {
   default: { in: 1.0, out: 3.0 },
+  "openai/gpt-4o-mini": { in: 0.15, out: 0.6 },
+  "openai/gpt-4o": { in: 2.5, out: 10 },
+  "anthropic/claude-sonnet-4": { in: 3, out: 15 },
 };
+
+function estimateCostUsd(
+  model: string,
+  promptTokens: number,
+  completionTokens: number,
+): number {
+  const p = PRICE[model] ?? PRICE["default"]!;
+  return (promptTokens / 1e6) * p.in + (completionTokens / 1e6) * p.out;
+}
+
+function costFromUsage(
+  usage: Record<string, unknown> | undefined,
+  model: string,
+  promptTokens: number,
+  completionTokens: number,
+): number | undefined {
+  if (!usage) return undefined;
+  const total =
+    typeof usage.total_cost === "number"
+      ? usage.total_cost
+      : typeof usage.cost === "number"
+        ? usage.cost
+        : undefined;
+  if (total !== undefined && Number.isFinite(total)) return total;
+  return undefined;
+}
 
 export async function chat(
   model: string,
@@ -37,19 +67,24 @@ export async function chat(
     }),
   });
   if (!res.ok) throw new Error(`OpenRouter ${res.status}: ${await res.text()}`);
-  const data = (await res.json()) as {
-    choices?: Array<{ message?: { content?: string } }>;
-    usage?: { prompt_tokens?: number; completion_tokens?: number };
-  };
-  const text = data.choices?.[0]?.message?.content ?? "";
-  const pt = data.usage?.prompt_tokens ?? 0;
-  const ct = data.usage?.completion_tokens ?? 0;
-  const p = PRICE[model] ?? PRICE["default"]!;
+  const headerCostRaw = res.headers.get("x-openrouter-cost");
+  const headerCost = headerCostRaw ? Number(headerCostRaw) : NaN;
+  const data = (await res.json()) as Record<string, unknown>;
+  const choices = data.choices as Array<{ message?: { content?: string } }> | undefined;
+  const usage = data.usage as Record<string, unknown> | undefined;
+  const text = choices?.[0]?.message?.content ?? "";
+  const pt = (usage?.prompt_tokens as number | undefined) ?? 0;
+  const ct = (usage?.completion_tokens as number | undefined) ?? 0;
+  const fromUsage = costFromUsage(usage, model, pt, ct);
+  const costUsd =
+    Number.isFinite(headerCost) && headerCost >= 0
+      ? headerCost
+      : fromUsage ?? estimateCostUsd(model, pt, ct);
   return {
     text,
     promptTokens: pt,
     completionTokens: ct,
-    costUsd: (pt / 1e6) * p.in + (ct / 1e6) * p.out,
+    costUsd,
   };
 }
 

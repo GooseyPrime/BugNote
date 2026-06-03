@@ -74,6 +74,10 @@ CI runs `db:migrate` before `npm test`. Integration tests must not pass with a m
 2. Dashboard inbox shows report progressing.
 3. Optional draft PR on mapped repo.
 
+## Pre-PR review guards
+
+See `.cursor/rules/40-pr-review-recurring-guards.mdc` and `docs/retrospectives/2026-06-03-pr3-codex-copilot-review.md` (themes from Codex/Copilot on PR #3).
+
 ## Agent notes
 
 - PR branches: `cursor/<topic>-a484` via `bash scripts/git/prepare-work-branch.sh <slug> cursor/<slug>-a484`.

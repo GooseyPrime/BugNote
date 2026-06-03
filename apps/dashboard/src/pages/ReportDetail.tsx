@@ -79,7 +79,7 @@ export default function ReportDetail() {
           className="rounded border px-3 py-1 text-sm"
           onClick={() => api.setStatus(String(row.id), "needs_info").then(load)}
         >
-          Mark resolved
+          Mark needs info
         </button>
         <button
           type="button"
