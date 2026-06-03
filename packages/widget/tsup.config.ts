@@ -1,6 +1,11 @@
 import { defineConfig } from "tsup";
+
 export default defineConfig({
-  entry: { index: "src/index.ts", bugnote: "src/index.ts" },
+  entry: {
+    index: "src/index.ts",
+    bugnote: "src/index.ts",
+    react: "src/react.tsx",
+  },
   format: ["esm", "iife"],
   globalName: "BugNote",
   dts: true,

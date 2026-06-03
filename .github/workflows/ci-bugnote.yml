@@ -13,6 +13,21 @@ jobs:
   build-test:
     name: Build & test
     runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgres:16
+        env:
+          POSTGRES_USER: bugnote_app
+          POSTGRES_PASSWORD: test
+          POSTGRES_DB: bugnote
+        ports: ["5432:5432"]
+        options: >-
+          --health-cmd "pg_isready -U bugnote_app"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+    env:
+      DATABASE_URL: postgresql://bugnote_app:test@localhost:5432/bugnote
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
@@ -25,5 +40,9 @@ jobs:
         run: npm run typecheck
       - name: Build
         run: npm run build
+      - name: Migrate
+        run: npm run db:migrate -w apps/server
       - name: Test
         run: npm test
+      - name: Assert no test mocks in app src
+        run: bash scripts/ci/assert-no-test-mocks-in-app-src.sh
