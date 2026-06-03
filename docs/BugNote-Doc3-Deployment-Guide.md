@@ -2,8 +2,8 @@
 
 ## Deployment & Operations Guide
 
-**Audience:** you (Brandon), executing on the Emma VM and in the GitHub / DO / Vercel / Clerk dashboards.
-**Prereqs:** SSH + sudo on Emma; Postgres superuser on Emma; admin on the `GooseyPrime` GitHub org; a DigitalOcean Spaces account; a Vercel account; a Clerk application.
+**Audience:** you (Brandon), executing on the Emma VM and in the GitHub / DO / Vercel / Google Cloud consoles.
+**Prereqs:** SSH + sudo on Emma; Postgres superuser on Emma; admin on the `GooseyPrime` GitHub org; a DigitalOcean Spaces account; a Vercel account; a Google Cloud project with OAuth 2.0 configured.
 
 Run the sections in order. Everything BugNote touches is namespaced `bugnote` so nothing collides with ResearchOne.
 
@@ -107,16 +107,21 @@ Health URL for the deploy workflow: `https://api.bugnote.intellme.com/health` �
 
 ---
 
-## 3. DO Spaces + Vercel + Clerk
+## 3. DO Spaces + Vercel + Google OAuth
 
 ### 3.1 Spaces (screenshots)
 Create a bucket `bugnote-screenshots` (private). Generate a Spaces access key/secret. Fill `SPACES_ENDPOINT` (e.g. `https://nyc3.digitaloceanspaces.com`), `SPACES_BUCKET`, `SPACES_KEY`, `SPACES_SECRET`. This is a **separate** bucket/key from ResearchOne's.
 
-### 3.2 Clerk (dashboard auth)
-Use a Clerk application (new or existing). Copy the **Publishable** and **Secret** keys → `CLERK_PUBLISHABLE_KEY` (server) / `VITE_CLERK_PUBLISHABLE_KEY` (dashboard) and `CLERK_SECRET_KEY` (server). Restrict sign-ups to yourself (Clerk → Restrictions → allowlist your email).
+### 3.2 Google OAuth (dashboard auth)
+Admin auth is Google OAuth ID-token verification against an email allowlist (single-admin). The server verifies the Google ID token with `google-auth-library` and checks `ADMIN_ALLOWED_EMAILS`; the dashboard uses `@react-oauth/google`, sends the ID token as the Bearer, and re-prompts on 401/403.
+
+1. In [Google Cloud Console](https://console.cloud.google.com/) → APIs & Services → Credentials, create (or reuse) an OAuth 2.0 **Web application** client.
+2. Under **Authorized JavaScript origins**, add your Vercel dashboard URL (e.g. `https://bugnote-dashboard.vercel.app`) and `http://localhost:5173` for local dev.
+3. Copy the **Client ID** → `GOOGLE_OAUTH_CLIENT_ID` (server `.env` on Emma) and `VITE_GOOGLE_OAUTH_CLIENT_ID` (Vercel project env). No client secret is required for the browser ID-token flow.
+4. Set `ADMIN_ALLOWED_EMAILS` on the server to your Google account email (comma-separated if you ever add more operators).
 
 ### 3.3 Vercel (dashboard)
-Import `GooseyPrime/bugnote`, set **Root Directory = `apps/dashboard`**, framework preset **Vite**. Env vars: `VITE_CLERK_PUBLISHABLE_KEY`, `VITE_API_BASE=https://api.bugnote.intellme.com`. Deploy. Then add the resulting Vercel URL to the server's admin CORS allowlist (`ADMIN_ALLOWED_ORIGINS`) and redeploy the server.
+Import `GooseyPrime/bugnote`, set **Root Directory = `apps/dashboard`**, framework preset **Vite**. Env vars: `VITE_GOOGLE_OAUTH_CLIENT_ID`, `VITE_API_BASE=https://api.bugnote.intellme.com`. Deploy. Then add the resulting Vercel URL to the server's admin CORS allowlist (`ADMIN_ALLOWED_ORIGINS`) and redeploy the server.
 
 ---
 
@@ -152,8 +157,8 @@ SPACES_ENDPOINT=https://nyc3.digitaloceanspaces.com
 SPACES_BUCKET=bugnote-screenshots
 SPACES_KEY=<spaces key>
 SPACES_SECRET=<spaces secret>
-CLERK_SECRET_KEY=<clerk secret>
-CLERK_PUBLISHABLE_KEY=<clerk publishable>
+GOOGLE_OAUTH_CLIENT_ID=<google oauth web client id>
+ADMIN_ALLOWED_EMAILS=<your google account email>
 ```
 > Pick the three OpenRouter model ids when you set this up — they change often, so check current availability and pricing on openrouter.ai rather than hardcoding from memory. Start cheap on triage, vision on analysis, strongest on fix.
 

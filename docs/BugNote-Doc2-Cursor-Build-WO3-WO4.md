@@ -366,4 +366,4 @@ export { openDraftPr } from "./pr";
 
 ## Next
 
-Part 3 implements **WO-5** — the Clerk-gated review dashboard (per-app inboxes, report detail with screenshot + console/breadcrumb trail + dossier + proposed diff + PR link, and triage actions). Then Document 3 is the deployment guide for you.
+Part 3 implements **WO-5** — the Google OAuth (single-admin) review dashboard (per-app inboxes, report detail with screenshot + console/breadcrumb trail + dossier + proposed diff + PR link, and triage actions). Then Document 3 is the deployment guide for you.
