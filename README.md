@@ -8,5 +8,5 @@ Embeddable bug-capture SDK + agentic auto-remediation backend.
 - `packages/github-app` — file retrieval + draft PR generation
 - `packages/shared` — zod schemas + shared types
 
-See the three setup documents for the full build and deploy plan.
+See Document 2 (build specs in `docs/BugNote-Doc2-Cursor-Build-*.md`) and [Document 3](docs/BugNote-Doc3-Deployment-Guide.md) for deployment and onboarding.
 Runs in an isolated lane on the Emma VM. Never references ResearchOne data.
