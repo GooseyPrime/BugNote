@@ -30,6 +30,8 @@ jobs:
       DATABASE_URL: postgresql://bugnote_app:test@localhost:5432/bugnote
       INGEST_ALLOWED_ORIGINS: https://test.example
       ADMIN_ALLOWED_ORIGINS: http://localhost:5173
+      GOOGLE_OAUTH_CLIENT_ID: 000000000000-ci000000000000000000000000.apps.googleusercontent.com
+      ADMIN_ALLOWED_EMAILS: ci@example.com
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
