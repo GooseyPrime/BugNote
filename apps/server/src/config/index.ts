@@ -34,8 +34,8 @@ const Env = z.object({
         return {};
       }
     }),
-  CLERK_SECRET_KEY: z.string().optional(),
-  CLERK_PUBLISHABLE_KEY: z.string().optional(),
+  GOOGLE_OAUTH_CLIENT_ID: z.string(),
+  ADMIN_ALLOWED_EMAILS: z.string(),
 });
 
 export const env = Env.parse(process.env);

@@ -1,20 +1,26 @@
-import { useAuth } from "@clerk/clerk-react";
+import { useAuthCredential } from "./auth-context";
 
-const BASE = import.meta.env.VITE_API_BASE as string;
+const BASE = import.meta.env.VITE_API_BASE_URL as string;
 
 export function useApi() {
-  const { getToken } = useAuth();
+  const { credential, clearCredential } = useAuthCredential();
 
   async function req<T>(path: string, init?: RequestInit): Promise<T> {
-    const token = await getToken();
+    if (!credential) {
+      throw new Error("not authenticated");
+    }
     const res = await fetch(`${BASE}${path}`, {
       ...init,
       headers: {
         "Content-Type": "application/json",
-        Authorization: `Bearer ${token}`,
+        Authorization: `Bearer ${credential}`,
         ...(init?.headers ?? {}),
       },
     });
+    if (res.status === 401 || res.status === 403) {
+      clearCredential();
+      throw new Error(`${res.status} ${await res.text()}`);
+    }
     if (!res.ok) throw new Error(`${res.status} ${await res.text()}`);
     return res.json() as Promise<T>;
   }
