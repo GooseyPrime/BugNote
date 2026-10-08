@@ -35,7 +35,7 @@ flowchart LR
 | 1 | You | Pick stable `appId` (e.g. `researchone`, `newontology`) |
 | 2 | You | Add production origin to `INGEST_ALLOWED_ORIGINS` on Emma → redeploy |
 | 3 | You | Add `"appId":"GooseyPrime/<repo>"` to `GITHUB_APP_REPO_MAP` if you want draft PRs |
-| 4 | Host app | Install widget (React or UMD) pointing at `https://api.bugnote.intellme.com/v1/ingest` |
+| 4 | Host app | Install widget (React or UMD) pointing at `https://<your-bugnote-api-host>/v1/ingest` |
 | 5 | Host app | Optional: `getUserId={() => yourUser?.id}` — **host** auth only |
 | 6 | You | Smoke: submit report → see in dashboard at `https://bugnote-intellme.vercel.app` |
 
@@ -52,7 +52,7 @@ import { BugNoteProvider } from "@bugnote/widget/react";
 
 <BugNoteProvider
   appId="researchone"
-  endpoint="https://api.bugnote.intellme.com/v1/ingest"
+  endpoint="https://<your-bugnote-api-host>/v1/ingest"
   getUserId={() => clerkUser?.id}  // ResearchOne's Clerk — not BugNote auth
 >
   <App />
@@ -66,7 +66,7 @@ import { BugNoteProvider } from "@bugnote/widget/react";
 <script>
   BugNote.init({
     appId: "newontology",
-    endpoint: "https://api.bugnote.intellme.com/v1/ingest",
+    endpoint: "https://<your-bugnote-api-host>/v1/ingest",
   });
 </script>
 ```

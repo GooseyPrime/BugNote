@@ -64,7 +64,7 @@ CI runs `db:migrate` before `npm test`. Integration tests must not pass with a m
 
 ## Deployment
 
-- **Server:** Emma VM, PM2 `bugnote-api` + `bugnote-worker` — see Document 3. API: `https://api.bugnote.intellme.com`.
+- **Server:** Emma VM, PM2 `bugnote-api` + `bugnote-worker` — see Document 3. API: `https://<your-bugnote-api-host>`.
 - **Dashboard:** Vercel, root `apps/dashboard`. Production: `https://bugnote-intellme.vercel.app`. Vercel env: `VITE_API_BASE_URL`, `VITE_GOOGLE_OAUTH_CLIENT_ID`.
 - **Merging PRs that touch `apps/server`** triggers Emma redeploy, not only Vercel.
 

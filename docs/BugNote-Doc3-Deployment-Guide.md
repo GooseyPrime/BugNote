@@ -73,11 +73,11 @@ MemoryMax=1500M
 and add `Slice=bugnote.slice` to the PM2 systemd unit's `[Service]`. Optional at launch; do it if you see contention.
 
 ### 1.7 nginx vhost + TLS
-Point DNS `api.bugnote.intellme.com` at Emma, then:
+Point DNS `<your-bugnote-api-host>` at Emma, then:
 ```nginx
 # /etc/nginx/sites-available/bugnote
 server {
-  server_name api.bugnote.intellme.com;
+  server_name <your-bugnote-api-host>;
   client_max_body_size 10m;            # inline screenshots
   location / { proxy_pass http://127.0.0.1:8090; proxy_set_header Host $host; proxy_set_header X-Real-IP $remote_addr; }
 }
@@ -85,9 +85,9 @@ server {
 ```bash
 sudo ln -s /etc/nginx/sites-available/bugnote /etc/nginx/sites-enabled/
 sudo nginx -t && sudo systemctl reload nginx
-sudo certbot --nginx -d api.bugnote.intellme.com
+sudo certbot --nginx -d <your-bugnote-api-host>
 ```
-Health URL for the deploy workflow: `https://api.bugnote.intellme.com/health` → `BUGNOTE_PUBLIC_HEALTH_URL`.
+Health URL for the deploy workflow: `https://<your-bugnote-api-host>/health` → `BUGNOTE_PUBLIC_HEALTH_URL`.
 
 ---
 
@@ -121,7 +121,7 @@ Admin auth is Google OAuth ID-token verification against an email allowlist (sin
 4. Set `ADMIN_ALLOWED_EMAILS` on the server to your Google account email (comma-separated if you ever add more operators).
 
 ### 3.3 Vercel (dashboard)
-Import `GooseyPrime/bugnote`, set **Root Directory = `apps/dashboard`**, framework preset **Vite**. Env vars: `VITE_GOOGLE_OAUTH_CLIENT_ID`, `VITE_API_BASE_URL=https://api.bugnote.intellme.com`. Deploy. Then add the dashboard origin to the server's admin CORS allowlist (`ADMIN_ALLOWED_ORIGINS`, e.g. `https://bugnote-intellme.vercel.app`) and redeploy the server.
+Import `GooseyPrime/bugnote`, set **Root Directory = `apps/dashboard`**, framework preset **Vite**. Env vars: `VITE_GOOGLE_OAUTH_CLIENT_ID`, `VITE_API_BASE_URL=https://<your-bugnote-api-host>`. Deploy. Then add the dashboard origin to the server's admin CORS allowlist (`ADMIN_ALLOWED_ORIGINS`, e.g. `https://bugnote-intellme.vercel.app`) and redeploy the server.
 
 ---
 
@@ -133,7 +133,7 @@ Import `GooseyPrime/bugnote`, set **Root Directory = `apps/dashboard`**, framewo
 | `BUGNOTE_EMMA_USER` | `bugnote` |
 | `BUGNOTE_SSH_KEY` | the private `bugnote_deploy` key (§1.2) |
 | `BUGNOTE_KNOWN_HOSTS` | output of `ssh-keyscan -H <emma-host>` |
-| `BUGNOTE_PUBLIC_HEALTH_URL` | `https://api.bugnote.intellme.com/health` |
+| `BUGNOTE_PUBLIC_HEALTH_URL` | `https://<your-bugnote-api-host>/health` |
 | `BUGNOTE_WRITE_BACKEND_ENV` | the full `.env` payload (below) |
 
 The `BUGNOTE_WRITE_BACKEND_ENV` payload is your production `.env`, built from `.env.example`:
@@ -171,7 +171,7 @@ Push to `main` (or run the **Deploy BugNote to Emma** workflow via dispatch). Th
 sudo -iu bugnote
 pm2 ls            # expect bugnote-api + bugnote-worker online
 pm2 logs bugnote-worker --lines 50
-curl -s https://api.bugnote.intellme.com/health
+curl -s https://<your-bugnote-api-host>/health
 ```
 
 ---
@@ -187,7 +187,7 @@ For each app you add (e.g. `researchone`, `newontology`):
    - React (ResearchOne): `npm i @bugnote/widget`, then wrap the app once:
      ```tsx
      import { BugNoteProvider } from "@bugnote/widget/react";
-     <BugNoteProvider appId="researchone" endpoint="https://api.bugnote.intellme.com/v1/ingest"
+     <BugNoteProvider appId="researchone" endpoint="https://<your-bugnote-api-host>/v1/ingest"
        getUserId={() => clerkUser?.id}>
        <App />
      </BugNoteProvider>
@@ -195,7 +195,7 @@ For each app you add (e.g. `researchone`, `newontology`):
    - Plain site (thenewontology.life): add before `</body>`:
      ```html
      <script src="https://unpkg.com/@bugnote/widget/dist/bugnote.umd.js"></script>
-     <script>BugNote.init({ appId: "newontology", endpoint: "https://api.bugnote.intellme.com/v1/ingest" });</script>
+     <script>BugNote.init({ appId: "newontology", endpoint: "https://<your-bugnote-api-host>/v1/ingest" });</script>
      ```
 5. **Deploy the host app.** The BugNote button is now resident on every page.
 
