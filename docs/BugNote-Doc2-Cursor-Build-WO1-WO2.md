@@ -225,7 +225,7 @@ import { renderButton } from "./ui";
 
 export interface BugNoteConfig {
   appId: string;
-  endpoint: string;                 // e.g. https://api.bugnote.intellme.com/v1/ingest
+  endpoint: string;                 // e.g. https://<your-bugnote-api-host>/v1/ingest
   appVersion?: string;
   getUserId?: () => string | undefined;
   position?: "bottom-right" | "bottom-left";
